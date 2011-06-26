@@ -1,0 +1,1 @@
+dep.defineMap({"two":"/home/defrex/code/depends/tests/scripts/two.js","three":"/home/defrex/code/depends/tests/scripts/three.js","four":"/home/defrex/code/depends/tests/scripts/four.js","one":"/home/defrex/code/depends/tests/scripts/one.js"})
