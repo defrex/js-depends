@@ -1,0 +1,15 @@
+{
+    "name": "depends",
+    "version": "0.1.0",
+    "description": "Put a stop to JavaScript dependancy accidents.",
+    "author": "defrex",
+    "main": "./lib/depends.js",
+    "bin": {"depends": "./lib/bin.js"},
+    "repository":{
+        "type" : "git",
+        "url" : "git://github.com/defrex/js-depends.git"
+    },
+    "dependencies": {
+        "cli": "0.2.8"
+    }
+}

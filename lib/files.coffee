@@ -1,10 +1,10 @@
 
 fs = require 'fs'
 
-class Application
+class Files
 
-  provides: /dep\.provide\(['"](.+?)['"]\)/ig
-  requires: /dep\.require\(['"](.+?)['"]\)/ig
+  provides: /dep\.provide\(['"](.+?)['"]\)/g
+  requires: /dep\.require\(['"](.+?)['"]\)/g
 
   constructor: (@sourceDir, @options = {}) ->
     if not @sourceDir?
@@ -109,6 +109,7 @@ class Application
 
           modules.splice(mi, 1)
 
+
   clean: () ->
     if @sorted?
       @output = (file.replace(@sourceDir, '') for file in @sorted)
@@ -117,6 +118,7 @@ class Application
       @map ||= {}
       for module, filename of @rawMap
         @map[module] = filename.replace @sourceDir, ''
+
 
   process: (clbk) ->
     @list null, (err) =>
@@ -128,20 +130,4 @@ class Application
         clbk.call(this)
 
 
-exports.manage = (dir, clbk) ->
-  app = new Application(dir);
-  app.process (err) ->
-    clbk?.call(this, err, app)
-
-
-exports.writeMap = (dir, filename, clbk) ->
-  app = new Application(dir);
-  app.parse (err) ->
-    return clbk?(err) if err
-
-    app.clean()
-
-    map = JSON.stringify(app.map)
-    map = "dep.defineMap(#{map})"
-
-    fs.writeFile filename, map, clbk
+exports.Files = Files

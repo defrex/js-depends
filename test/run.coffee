@@ -1,8 +1,8 @@
 
-depends = require '../depends'
+depends = require '../lib/depends'
 fs = require 'fs'
 assert = require 'assert'
-static = require '../simpleStatic'
+static = require '../lib/simpleStatic'
 
 depends.manage __dirname, (err, scripts) ->
   if err
