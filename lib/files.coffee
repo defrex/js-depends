@@ -117,9 +117,9 @@ class Files
           needed[needs] ||= []
           needed[needs].push(module)
 
-        console.log '{missing module name: [needed by..]}:'
-        console.log JSON.stringify(needed, null, 2)
-        throw 'Cannot resolve Dependancies'
+        error = 'Cannot resolve Dependancies \n{missing module name: [needed by..]}:'
+        error += JSON.stringify(needed, null, 2)
+        throw error
 
 
   clean: () ->
