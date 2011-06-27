@@ -3,6 +3,10 @@
 
 Stop JavaScript dependancy accidents today.
 
+## Install
+
+    npm -g install depends
+
 ## Usage
 
 At the top of a given js file, you can put `dep.provide` and `dep.require`. The name passed into these function can be whatever you want. Module names makes sense.
