@@ -15,10 +15,10 @@ class Application
 
   list: (dir = @sourceDir, clbk) ->
     @files ||= []
-    @t = 123;
-    t = @t
 
-    fs.readdir @sourceDir, (err, files) =>
+    dir += '/' if dir[dir.length-1] != '/'
+
+    fs.readdir dir, (err, files) =>
       return clbk?.call(this, err) if err
 
       next = (err) =>
@@ -39,6 +39,10 @@ class Application
           else if /\.js$/.test file
             @files.push file
             next()
+
+          else
+            next()
+
       next()
 
 
@@ -48,7 +52,7 @@ class Application
         return clbk?.call(this, err) if err
         @parse clbk
 
-    @map ||= {}
+    @rawMap ||= {}
     @deps ||= {}
     files = @files
 
@@ -73,17 +77,18 @@ class Application
           modules = ['mod-'+file.replace(/[^\w]/, '')]
 
         for module in modules
-          @map[module] = file
+          @rawMap[module] = file
           @deps[module] = requires if requires?
 
         next()
     next()
 
+
   sort: () ->
-    @parse @sort if not @deps? and @map?
+    @parse @sort if not @deps? and @rawMap?
 
     @sorted ||= []
-    modules = (module for module, file of @map)
+    modules = (module for module, file of @rawMap)
     deps = Object.create @deps
     runs = 0
     max = modules.length * 2
@@ -95,7 +100,7 @@ class Application
       for mi, module of modules
 
         if deps[module].length == 0
-          @sorted.push @map[module]
+          @sorted.push @rawMap[module]
 
           for needs, needed of deps
             for ni, nMod of needed
@@ -104,6 +109,14 @@ class Application
 
           modules.splice(mi, 1)
 
+  clean: () ->
+    if @sorted?
+      @output = (file.replace(@sourceDir, '') for file in @sorted)
+
+    if @rawMap
+      @map ||= {}
+      for module, filename of @rawMap
+        @map[module] = filename.replace @sourceDir, ''
 
   process: (clbk) ->
     @list null, (err) =>
@@ -111,6 +124,7 @@ class Application
       @parse (err) =>
         return clbk?.call(this, err) if err
         @sort()
+        @clean()
         clbk.call(this)
 
 
@@ -124,6 +138,8 @@ exports.writeMap = (dir, filename, clbk) ->
   app = new Application(dir);
   app.parse (err) ->
     return clbk?(err) if err
+
+    app.clean()
 
     map = JSON.stringify(app.map)
     map = "dep.defineMap(#{map})"

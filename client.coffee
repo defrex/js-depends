@@ -1,0 +1,33 @@
+
+dep =
+  map: {}
+  loaded: {}
+
+dep.defineMap = (map) ->
+  dep.map = map
+
+
+dep.provide = (module) ->
+  dep.loaded[module] = true
+
+
+dep.require = (module) ->
+  return if dep.loaded[module]
+
+  throw "No mapped module named #{module}" if not dep.map[module]?
+
+  request = new XMLHttpRequest();
+  request.open 'GET', dep.map[module]
+
+  req = new XMLHttpRequest()
+  req.open('GET', dep.map[module], false)
+  req.send()
+
+  if req.status == 200
+    script = document.createElement('script')
+    script.text = req.responseText
+    document.head.appendChild(script)
+  else
+    throw "module #{module} cannot be loaded from #{dep.map[module]}"
+
+window.dep = dep

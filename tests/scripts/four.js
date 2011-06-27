@@ -10,4 +10,6 @@ if (
   typeof window.three == 'undefined'
 ){
   throw('four: deps not met');
+} else {
+  console.log('test passed');
 }
