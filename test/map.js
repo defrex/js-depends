@@ -6,6 +6,15 @@ dep = {
 dep.defineMap = function(map) {
   return dep.map = map;
 };
+dep.load = function(mods) {
+  var mod, _i, _len, _results;
+  _results = [];
+  for (_i = 0, _len = mods.length; _i < _len; _i++) {
+    mod = mods[_i];
+    _results.push(dep.require(mod));
+  }
+  return _results;
+};
 dep.provide = function(module) {
   return dep.loaded[module] = true;
 };
@@ -32,4 +41,5 @@ dep.require = function(module) {
 };
 window.dep = dep;
 
-dep.defineMap({"two":"/scripts/two.js","three":"/scripts/three.js","four":"/scripts/four.js","one":"/scripts/one.js"})
+dep.defineMap({"two":"/scripts/two.js","three":"/scripts/three.js","four":"/scripts/four.js","one":"/scripts/one.js"});
+dep.load(["one","two","three","four"]);

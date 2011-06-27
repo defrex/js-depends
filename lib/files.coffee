@@ -100,7 +100,7 @@ class Files
       for mi, module of modules
 
         if deps[module].length == 0
-          @sorted.push @rawMap[module]
+          @sorted.push module
 
           for needs, needed of deps
             for ni, nMod of needed
@@ -112,7 +112,7 @@ class Files
 
   clean: () ->
     if @sorted?
-      @output = (file.replace(@sourceDir, '') for file in @sorted)
+      @output = (@rawMap[file].replace(@sourceDir, '') for file in @sorted)
 
     if @rawMap
       @map ||= {}

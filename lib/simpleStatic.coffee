@@ -14,9 +14,6 @@ exports.run = (root, address, port) ->
   (http.createServer (req, res) ->
     filename = path.join root, url.parse(req.url).pathname
 
-    if /client\.js$/.test(filename)
-      filename = filename.replace 'client.js', '../client.js'
-
     path.exists filename, (exists) ->
       if not exists
         res.writeHead 404

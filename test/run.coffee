@@ -15,10 +15,10 @@ depends.manage __dirname, (err, scripts) ->
   assert.equal scripts.map.four, "/scripts/four.js"
   console.log 'map correct'
 
-  assert.equal scripts.sorted[0], "#{__dirname}/scripts/one.js"
-  assert.equal scripts.sorted[1], "#{__dirname}/scripts/two.js"
-  assert.equal scripts.sorted[2], "#{__dirname}/scripts/three.js"
-  assert.equal scripts.sorted[3], "#{__dirname}/scripts/four.js"
+  assert.equal scripts.sorted[0], "one"
+  assert.equal scripts.sorted[1], "two"
+  assert.equal scripts.sorted[2], "three"
+  assert.equal scripts.sorted[3], "four"
   console.log 'sorted correctly'
 
   assert.equal scripts.output[0], "/scripts/one.js"

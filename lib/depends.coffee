@@ -14,12 +14,13 @@ exports.writeMap = (dir, filename, clbk) ->
     if err? then throw err
 
     files = new Files(dir);
-    files.parse (err) ->
+    files.process (err) ->
       return clbk?(err) if err
 
-      files.clean()
-
       map = JSON.stringify(files.map)
-      contents = contents + "\n\ndep.defineMap(#{map})"
+      mods = JSON.stringify(files.sorted)
+      contents = contents + """\n
+      dep.defineMap(#{map});
+      dep.load(#{mods});"""
 
       fs.writeFile filename, contents, clbk

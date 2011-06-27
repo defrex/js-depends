@@ -8,6 +8,7 @@ cli = require 'cli'
 cli.parse
   src: ['s', 'Source directory', 'path', '.']
   loader: ['l', 'Location of runtime loader file', 'file', false]
+  script: [false, 'Wrap output in script tags', 'boolean', false]
 
 cli.main (args, opt) ->
   fs.realpath opt.src, (err, path) ->
@@ -23,4 +24,8 @@ cli.main (args, opt) ->
       depends.manage path, (err, files) ->
         if err? then throw err
 
-        console.log file for file in files.output
+        if opt.script
+          for file in files.output
+            console.log "<script src=\"#{file}\"></script>"
+        else
+          console.log file for file in files.output

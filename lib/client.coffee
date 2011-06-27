@@ -6,10 +6,11 @@ dep =
 dep.defineMap = (map) ->
   dep.map = map
 
+dep.load = (mods) ->
+  dep.require mod for mod in mods
 
 dep.provide = (module) ->
   dep.loaded[module] = true
-
 
 dep.require = (module) ->
   return if dep.loaded[module]
