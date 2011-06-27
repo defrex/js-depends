@@ -93,21 +93,33 @@ class Files
     runs = 0
     max = modules.length * 2
 
+    # if modules.length reaches 0, we're done
     while modules.length > 0
-      if runs++ >= max
-        throw 'no many iterations'
-
+      #loop over all modules
       for mi, module of modules
-
+        #if the module has no more deps, we can push it to sorted
         if deps[module].length == 0
           @sorted.push module
 
+          #removes all referances to the sorted dep
           for needs, needed of deps
             for ni, nMod of needed
               if nMod == module
                 deps[needs].splice(ni, 1)
 
+          #remove the sorted dep form the module list
           modules.splice(mi, 1)
+
+      # after a ton of loops, we print a helpful error
+      if runs++ >= max
+        needed = {}
+        for module, needs of deps
+          needed[needs] ||= []
+          needed[needs].push(module)
+
+        console.log '{missing module name: [needed by..]}:'
+        console.log JSON.stringify(needed, null, 2)
+        throw 'Cannot resolve Dependancies'
 
 
   clean: () ->

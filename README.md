@@ -35,7 +35,7 @@ Once that is in place, you'll need to run `depends` over your js directory to ge
 
     depends --loader=mydepends.js --src=./js/
 
-This will search the current directory recursively looking for `.js` files that inclide `dep.provide` or `dep.require`. It will then create a file called mydepends.js (in this example). This file contains the code, as well as the mapping from module names to filenames needed to load the files at runtime.
+This will search the current directory recursively looking for `.js` files that inclide `dep.provide` or `dep.require`. It will then create a file called mydepends.js (in this example). This file will load all of your js, in order, at runtime.
 
     <script src="mydepends.js"></script>
 
