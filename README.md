@@ -9,7 +9,7 @@ Stop JavaScript dependancy accidents today.
 
 ## Usage
 
-At the top of a given js file, you can put `dep.provide` and `dep.require`. The name passed into these function can be whatever you want. Module names makes sense.
+At the top of a given js file, you can put `dep.provide` and `dep.require`. The names (strings) passed into these functions can be whatever you want. Module names makes sense.
 
     dep.provide('lib1');
 
@@ -18,30 +18,42 @@ At the top of a given js file, you can put `dep.provide` and `dep.require`. The 
 . . .
 
     dep.require('lib1');
-
     dep.provide('lib2');
 
-    window.lib1 == 'awesome';
+    if (window.lib1 != 'awesome') throw('a fit')
 
-This style is largely inspired to Google Closure's goog.provide and goog.require, only without the overhead of the rest of the library.
+. . .
 
-Once that is in place, you'll need to load your js in order. This can be done in a few ways.
+    dep.require('lib1');
+    dep.require('lib2');
 
-    depends --loader=mydepends.js
+    if (window.lib1 != 'awesome') throw('a fit')
 
-This will search the current directory recursively looking for `.js` files that inclide `dep.provide` or `dep.require`. It will then create a file called mydepends.js. This file contains the code, as well as the mapping from module names to filenames needed to load the files at runtime.
+This style is largely inspired to Google Closure's `goog.provide` and `goog.require`, only without the investment of using Closure Library.
+
+Once that is in place, you'll need to run `depends` over your js directory to generate a loader file.
+
+    depends --loader=mydepends.js --src=./js/
+
+This will search the current directory recursively looking for `.js` files that inclide `dep.provide` or `dep.require`. It will then create a file called mydepends.js (in this example). This file contains the code, as well as the mapping from module names to filenames needed to load the files at runtime.
 
     <script src="mydepends.js"></script>
 
-Including this one file will include _all_ your javascript, in order.
+Including this one file will include _all_ your javascript, in order. If this is not what you want use:
 
-Clearly this solution isn't production-worthy, since it downloads each js fime individually. For that reason you can run `depends` without the `--loader` flag, and it will simply print all the file names in order. The assumption being one can take the output and incorperate it into thier own build system.
+    depends --map=mydepends.js --src=./js/
+
+This will just include the map, but not load the js. After that any `dep.require` statements will cause the js to load syncronously.
+
+Clearly this solution isn't production-worthy, since it downloads each js file individually. For that reason you can run `depends` without the `--loader` or `--map` flags, and it will simply print all the file names in order. The assumption being one can take the output and incorperate it into thier own build system.
+
+If you can think of a more convinient way to handle production, let me know and I'll see what I can do.
 
 ## Node.js lib
 
-depends is also usable as a node.js library. There are two operations: `manage` and `writeMap`.
+depends is also usable as a node.js library. There are three operations: `manage`, `writeMap` and `writeLoader`.
 
-    var depends = require('depends')
+    var depends = require('depends');
 
     depends.manage(directory, function(error, files){
       files.map // object {module: filename}
@@ -49,6 +61,5 @@ depends is also usable as a node.js library. There are two operations: `manage` 
       files.output // array [filename, filename..] in dep order
     });
 
-    depends.writeMap(directory, outputFilename, function(error){
-
-    });
+    depends.writeMap(directory, outputFilename, function(error){});
+    depends.writeLoader(directory, outputFilename, function(error){});

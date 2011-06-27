@@ -27,14 +27,14 @@ depends.manage __dirname, (err, scripts) ->
   assert.equal scripts.output[3], "/scripts/four.js"
   console.log 'output correctly'
 
-  depends.writeMap __dirname, "#{__dirname}/map.js", (err) ->
+  depends.writeLoader __dirname, "#{__dirname}/map.js", (err) ->
     if err
       console.log err
       process.exit()
 
     fs.readFile "#{__dirname}/map.js", (err, contents) ->
       assert.ok not err?
-      console.log 'no error on writeMap'
+      console.log 'no error on writeLoader'
 
       static.run __dirname, '127.0.0.1', 3003
 

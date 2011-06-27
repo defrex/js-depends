@@ -23,14 +23,14 @@ depends.manage(__dirname, function(err, scripts) {
   assert.equal(scripts.output[2], "/scripts/three.js");
   assert.equal(scripts.output[3], "/scripts/four.js");
   console.log('output correctly');
-  return depends.writeMap(__dirname, "" + __dirname + "/map.js", function(err) {
+  return depends.writeLoader(__dirname, "" + __dirname + "/map.js", function(err) {
     if (err) {
       console.log(err);
       process.exit();
     }
     return fs.readFile("" + __dirname + "/map.js", function(err, contents) {
       assert.ok(!(err != null));
-      console.log('no error on writeMap');
+      console.log('no error on writeLoader');
       static.run(__dirname, '127.0.0.1', 3003);
       return console.log('complete test at: http://127.0.0.1:3003/test.html');
     });

@@ -2,14 +2,7 @@
 Files = require('./files').Files
 fs = require 'fs'
 
-exports.manage = (dir, clbk) ->
-  files = new Files(dir)
-  files.process (err) ->
-    clbk?.call(this, err, files)
-
-
-exports.writeMap = (dir, filename, clbk) ->
-
+writeClient = (loader, dir, filename, clbk) ->
   fs.readFile __dirname+'/client.js', (err, contents) ->
     if err? then throw err
 
@@ -19,8 +12,21 @@ exports.writeMap = (dir, filename, clbk) ->
 
       map = JSON.stringify(files.map)
       mods = JSON.stringify(files.sorted)
-      contents = contents + """\n
-      dep.defineMap(#{map});
-      dep.load(#{mods});"""
+      contents = contents + "\n\ndep.defineMap(#{map});\n"
+
+      if loader
+        contents = contents + "\ndep.load(#{mods});\n"
 
       fs.writeFile filename, contents, clbk
+
+
+exports.writeMap = (dir, filename, clbk) ->
+  writeClient false, dir, filename, clbk
+
+exports.writeLoader = (dir, filename, clbk) ->
+  writeClient true, dir, filename, clbk
+
+exports.manage = (dir, clbk) ->
+  files = new Files(dir)
+  files.process (err) ->
+    clbk?.call(this, err, files)

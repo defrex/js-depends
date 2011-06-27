@@ -8,16 +8,21 @@ cli = require 'cli'
 cli.parse
   src: ['s', 'Source directory', 'path', '.']
   loader: ['l', 'Location of runtime loader file', 'file', false]
+  loader: ['l', 'Location of runtime mapping file', 'file', false]
   script: [false, 'Wrap output in script tags', 'boolean', false]
 
 cli.main (args, opt) ->
   fs.realpath opt.src, (err, path) ->
     if err? then throw err
 
-    if opt.loader
+    if opt.map
       depends.writeMap path, opt.loader, (err) ->
         if err? then throw err
+        console.log 'done'
 
+    else if opt.loader
+      depends.writeLoader path, opt.loader, (err) ->
+        if err? then throw err
         console.log 'done'
 
     else
