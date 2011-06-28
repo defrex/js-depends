@@ -1,5 +1,6 @@
 
 fs = require 'fs'
+util = require './util'
 
 class Files
 
@@ -88,15 +89,6 @@ class Files
     next()
 
 
-  newDeps: () ->
-    if not @deps? then throw 'cannot clone @deps when it doesn\t exist'
-
-    newDeps = {}
-    for dep, needs of @deps
-      newDeps[dep] = needs.slice()
-
-    return newDeps
-
   sort: () ->
     @parse @sort if not @deps? and @rawMap?
 
@@ -104,9 +96,9 @@ class Files
 
     @sorted ||= []
     modules = (module for module, file of @rawMap)
-    deps = @newDeps()
+    deps = util.clone(@deps)
     runs = 0
-    max = modules.length * 2
+    max = modules.length * 3
 
     # if modules.length reaches 0, we're done
     while modules.length > 0
@@ -135,15 +127,27 @@ class Files
             needed[need] ||= []
             needed[need].push(module)
 
-        #are there any needed, that don't need anything?
+        error = 'Cannot resolve Dependancies \n'
+
+        #look for anything is is required, but has no provider
         missing = {}
         for module, needs of needed
           if not @deps[module]?
             missing[module] = needs
 
-        error = 'Cannot resolve Dependancies \n'
-        error += 'missing {required: [requires..]}: '
-        error += JSON.stringify(missing, null, 2)
+        if not util.isEmpty(missing)
+          error += 'missing {required: [requires..]}: '
+          error += JSON.stringify(missing, null, 2)
+          return error
+
+        #look for circular dependancies
+        for required, requires of needed
+          for mod in requires
+            if required in needed[mod]
+              error += "A circular dependancy has been found for:\n#{required}\n#{mod}"
+              return error
+
+        error += 'An unknown error occured'
         return error
     return
 
