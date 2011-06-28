@@ -112,13 +112,21 @@ class Files
 
       # after a ton of loops, we print a helpful error
       if runs++ >= max
+        #invert deps, since it's easier to read that way
         needed = {}
         for module, needs of deps
-          needed[needs] ||= []
-          needed[needs].push(module)
+          for need in needs
+            needed[need] ||= []
+            needed[need].push(module)
 
-        error = 'Cannot resolve Dependancies \n{missing module name: [needed by..]}:'
-        error += JSON.stringify(needed, null, 2)
+        #are there any needed, that don't need anything?
+        missing = {}
+        for module, needs of needed
+          if not deps[module]? or deps[module].length == 0
+            missing[module] = needs
+
+        error = 'Cannot resolve Dependancies \n'
+        error += 'Unmet dependancies {dep: [needed by...]}: '+JSON.stringify(missing, null, 2)
         throw error
 
 
