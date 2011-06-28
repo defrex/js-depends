@@ -5,14 +5,20 @@ depends = require './depends'
 fs = require 'fs'
 cli = require 'cli'
 
+package = JSON.parse fs.readFileSync "#{__dirname}/../package.json"
+cli.setApp package.name, package.version
+cli.enable 'version'
+
+cli.setUsage 'depends [OPTIONS] [js-directory]'
 cli.parse
-  src: ['s', 'Source directory', 'path', '.']
   loader: ['l', 'Location of runtime loader file', 'file', false]
   map: ['m', 'Location of runtime mapping file', 'file', false]
-  script: [false, 'Wrap output in script tags', 'boolean', false]
+  script: ['s', 'Wrap output in script tags', 'boolean', false]
 
 cli.main (args, opt) ->
-  fs.realpath opt.src, (err, path) ->
+  src = args[0] || '.'
+
+  fs.realpath src, (err, path) ->
     if err? then throw err
 
     if opt.map

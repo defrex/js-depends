@@ -140,16 +140,12 @@ class Files
         missing = {}
         for module, needs of needed
           if not @deps[module]?
-#            console.log 'missing', module, @deps[module]
             missing[module] = needs
 
         error = 'Cannot resolve Dependancies \n'
-#        error += '\n\n@deps: '+JSON.stringify(@deps, null, 2)
-#        error += '\n\ndeps: '+JSON.stringify(deps, null, 2)
-#        error += '\n\nneeded: '+JSON.stringify(needed, null, 2)
-        error += 'missing {required: [requires..]}: '+JSON.stringify(missing, null, 2)
-#        error += 'Unmet dependancies {dep: [needed by...]}: '+JSON.stringify(missing, null, 2)
-        throw error
+        error += 'missing {required: [requires..]}: '
+        error += JSON.stringify(missing, null, 2)
+        return error
 
 
   clean: () ->
@@ -163,11 +159,14 @@ class Files
 
 
   process: (clbk) ->
-    @list null, (err) =>
-      return clbk?.call(this, err) if err
-      @parse (err) =>
-        return clbk?.call(this, err) if err
-        @sort()
+    @list null, (err) ->
+      return clbk?.call(this, err) if err?
+      @parse (err) ->
+        return clbk?.call(this, err) if err?
+
+        sortErr = @sort()
+        if sortErr? then return clbk?.call(this, sortErr)
+
         @clean()
         clbk.call(this)
 
