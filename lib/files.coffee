@@ -14,7 +14,9 @@ class Files
 
 
   list: (dir = @sourceDir, clbk) ->
-    @files ||= []
+    if @files? then return clbk?.call(this)
+
+    @files = []
 
     dir += '/' if dir[dir.length-1] != '/'
 
@@ -52,9 +54,12 @@ class Files
         return clbk?.call(this, err) if err
         @parse clbk
 
-    @rawMap ||= {}
-    @deps ||= {}
-    files = @files
+    if @rawMap? and @deps?
+      return clbk?.call(this)
+
+    @rawMap = {}
+    @deps = {}
+    files = @files.slice()
 
     next = (err) =>
       return clbk?.call(this, err) if err
@@ -84,12 +89,23 @@ class Files
     next()
 
 
+  newDeps: () ->
+    if not @deps? then throw 'cannot clone @deps when it doesn\t exist'
+
+    newDeps = {}
+    for dep, needs of @deps
+      newDeps[dep] = needs.slice()
+
+    return newDeps
+
   sort: () ->
     @parse @sort if not @deps? and @rawMap?
 
+    if @sorted? then return
+
     @sorted ||= []
     modules = (module for module, file of @rawMap)
-    deps = Object.create @deps
+    deps = @newDeps()
     runs = 0
     max = modules.length * 2
 
@@ -109,6 +125,7 @@ class Files
 
           #remove the sorted dep form the module list
           modules.splice(mi, 1)
+          delete deps[module]
 
       # after a ton of loops, we print a helpful error
       if runs++ >= max
@@ -122,19 +139,24 @@ class Files
         #are there any needed, that don't need anything?
         missing = {}
         for module, needs of needed
-          if not deps[module]? or deps[module].length == 0
+          if not @deps[module]?
+#            console.log 'missing', module, @deps[module]
             missing[module] = needs
 
         error = 'Cannot resolve Dependancies \n'
-        error += 'Unmet dependancies {dep: [needed by...]}: '+JSON.stringify(missing, null, 2)
+#        error += '\n\n@deps: '+JSON.stringify(@deps, null, 2)
+#        error += '\n\ndeps: '+JSON.stringify(deps, null, 2)
+#        error += '\n\nneeded: '+JSON.stringify(needed, null, 2)
+        error += 'missing {required: [requires..]}: '+JSON.stringify(missing, null, 2)
+#        error += 'Unmet dependancies {dep: [needed by...]}: '+JSON.stringify(missing, null, 2)
         throw error
 
 
   clean: () ->
-    if @sorted?
+    if @sorted? and not @output?
       @output = (@rawMap[file].replace(@sourceDir, '') for file in @sorted)
 
-    if @rawMap
+    if @rawMap and not @map?
       @map ||= {}
       for module, filename of @rawMap
         @map[module] = filename.replace @sourceDir, ''
@@ -148,6 +170,23 @@ class Files
         @sort()
         @clean()
         clbk.call(this)
+
+
+  writeClient: (filename, load, clbk) ->
+    fs.readFile __dirname+'/client.js', (err, contents) =>
+      if err? then return clbk?(err)
+
+      @process (err) ->
+        return clbk?(err) if err
+
+        map = JSON.stringify(@map)
+        contents = contents + "\n\ndep.defineMap(#{map});\n"
+
+        if load
+          mods = JSON.stringify(@sorted)
+          contents = contents + "\ndep.load(#{mods});\n"
+
+        fs.writeFile filename, contents, clbk
 
 
 exports.Files = Files

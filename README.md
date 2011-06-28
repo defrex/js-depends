@@ -59,6 +59,8 @@ depends is also usable as a node.js library. There are three operations: `manage
       files.map // object {module: filename}
       files.sorted // array [module, module..] in dep order
       files.output // array [filename, filename..] in dep order
+
+      files.writeClient(filename, load, function(error){}); // (load=true) == writeLoader
     });
 
     depends.writeMap(directory, outputFilename, function(error){});
