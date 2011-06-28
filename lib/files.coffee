@@ -14,9 +14,8 @@ class Files
 
 
   list: (dir = @sourceDir, clbk) ->
-    if @files? then return clbk?.call(this)
 
-    @files = []
+    @files ||= []
 
     dir += '/' if dir[dir.length-1] != '/'
 
@@ -146,6 +145,7 @@ class Files
         error += 'missing {required: [requires..]}: '
         error += JSON.stringify(missing, null, 2)
         return error
+    return
 
 
   clean: () ->
@@ -162,7 +162,7 @@ class Files
     @list null, (err) ->
       return clbk?.call(this, err) if err?
       @parse (err) ->
-        return clbk?.call(this, err) if err?
+        if err? then return clbk?.call(this, err)
 
         sortErr = @sort()
         if sortErr? then return clbk?.call(this, sortErr)
