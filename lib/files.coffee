@@ -75,10 +75,10 @@ class Files
         provides = while tmp = @provides.exec(content)
           tmp[1]
 
-        if provides?
+        if provides.length
           modules = provides
         else
-          modules = ['mod-'+file.replace(/[^\w]/, '')]
+          modules = ['mod'+file.replace(/\//g, '.').replace(/[^\w\.]/g, '')]
 
         for module in modules
           @rawMap[module] = file
