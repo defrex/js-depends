@@ -1,6 +1,6 @@
 {
     "name": "depends",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "description": "Put a stop to JavaScript dependancy accidents.",
     "author": "defrex",
     "main": "./lib/depends.js",
