@@ -16,6 +16,15 @@ dep.load = function(mods) {
   return _results;
 };
 dep.provide = function(module) {
+  var cur, split, _name;
+  if (dep.loaded[module]) {
+    throw new Error("Module " + module + " already loaded.");
+  }
+  split = module.split('.');
+  cur = window;
+  while (split.length) {
+    cur = cur[_name = split.shift()] || (cur[_name] = {});
+  }
   return dep.loaded[module] = true;
 };
 dep.require = function(module) {
@@ -41,6 +50,4 @@ dep.require = function(module) {
 };
 window.dep = dep;
 
-dep.defineMap({"two":"/scripts/two.js","three":"/scripts/three.js","four":"/scripts/four.js","one":"/scripts/one.js"});
-
-dep.load(["one","two","three","four"]);
+dep.defineMap({"mod.home.defrex.code.depends.test.map.js":"/map.js","two":"/scripts/two.js","three":"/scripts/three.js","four":"/scripts/four.js","one":"/scripts/one.js","mod.home.defrex.code.depends.test.run.js":"/run.js"});

@@ -4,15 +4,15 @@ fs = require 'fs'
 assert = require 'assert'
 static = require '../lib/simpleStatic'
 
-depends.manage __dirname, (err, scripts) ->
+depends.manage "#{__dirname}/scripts/", (err, scripts) ->
   if err
     console.log err
     process.exit()
 
-  assert.equal scripts.map.one, "/scripts/one.js"
-  assert.equal scripts.map.two, "/scripts/two.js"
-  assert.equal scripts.map.three, "/scripts/three.js"
-  assert.equal scripts.map.four, "/scripts/four.js"
+  assert.equal scripts.map.one, "one.js"
+  assert.equal scripts.map.two, "two.js"
+  assert.equal scripts.map.three, "three.js"
+  assert.equal scripts.map.four, "four.js"
   console.log 'map correct'
 
   assert.equal scripts.sorted[0], "one"
@@ -21,13 +21,13 @@ depends.manage __dirname, (err, scripts) ->
   assert.equal scripts.sorted[3], "four"
   console.log 'sorted correctly'
 
-  assert.equal scripts.output[0], "/scripts/one.js"
-  assert.equal scripts.output[1], "/scripts/two.js"
-  assert.equal scripts.output[2], "/scripts/three.js"
-  assert.equal scripts.output[3], "/scripts/four.js"
+  assert.equal scripts.output[0], "one.js"
+  assert.equal scripts.output[1], "two.js"
+  assert.equal scripts.output[2], "three.js"
+  assert.equal scripts.output[3], "four.js"
   console.log 'output correctly'
 
-  depends.writeLoader __dirname, "#{__dirname}/map.js", (err) ->
+  depends.writeMap __dirname, "#{__dirname}/map.js", (err) ->
     if err
       console.log err
       process.exit()
