@@ -10,6 +10,13 @@ dep.load = (mods) ->
   dep.require mod for mod in mods
 
 dep.provide = (module) ->
+  if dep.loaded[module]
+    throw new Error "Module #{module} already loaded."
+
+  split = module.split('.')
+  cur = window
+  cur = cur[split.shift()] ||= {} while split.length
+
   dep.loaded[module] = true
 
 dep.require = (module) ->
