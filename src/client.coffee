@@ -3,21 +3,22 @@ dep =
   map: {}
   loaded: {}
 
+
 dep.defineMap = (map) ->
   dep.map = map
+
 
 dep.load = (mods) ->
   dep.require mod for mod in mods
 
-dep.provide = (module) ->
-  if dep.loaded[module]
-    throw new Error "Module #{module} already loaded."
 
+dep.provide = (module) ->
   split = module.split('.')
   cur = window
   cur = cur[split.shift()] ||= {} while split.length
 
   dep.loaded[module] = true
+
 
 dep.require = (module) ->
   return if dep.loaded[module]
@@ -37,5 +38,6 @@ dep.require = (module) ->
     document.head.appendChild(script)
   else
     throw "module #{module} cannot be loaded from #{dep.map[module]}"
+
 
 window.dep = dep
