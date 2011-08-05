@@ -40,7 +40,12 @@ class NodeDep
     request url: url, (err, res, body)=>
       return clbk err if err?
 
-      vm.runInNewContext body, this.context, url
+      try
+        vm.runInNewContext body, this.context, url
+      catch e
+        console.log 'error in file: ', url
+        console.log e.stack
+
       clbk()
 
 
