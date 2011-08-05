@@ -51,6 +51,8 @@ If you can think of a more convinient way to handle production, let me know and 
 
 ## Node.js lib
 
+_this section is a little out of date, see depends.coffe for the real goods_
+
 depends is also usable as a node.js library. There are three operations: `manage`, `writeMap` and `writeLoader`.
 
     var depends = require('depends');

@@ -4,8 +4,10 @@
 depends = require './depends'
 fs = require 'fs'
 cli = require 'cli'
+path = require 'path'
 
-package = JSON.parse fs.readFileSync "#{__dirname}/../package.json"
+package = JSON.parse fs.readFileSync path.join __dirname, '/../package.json'
+
 cli.setApp package.name, package.version
 cli.enable 'version'
 

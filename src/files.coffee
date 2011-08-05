@@ -7,11 +7,7 @@ class Files
   provides: /dep\.provide\(['"](.+?)['"]\)/g
   requires: /dep\.require\(['"](.+?)['"]\)/g
 
-  constructor: (@sourceDir, @options = {}) ->
-    if not @sourceDir?
-      throw new Error 'A source directory is required'
-    else if not typeof @sourceDir == 'string'
-      throw new Error 'Source directory must be a string'
+  constructor: (@sourceDir = '', @options = {}) ->
 
 
   list: (dir = @sourceDir, clbk) ->
@@ -48,10 +44,29 @@ class Files
       next()
 
 
-  parse: (clbk) ->
+  load: (clbk) ->
     if not @files?
       return @list null, (err) =>
-        return clbk?.call(this, err) if err
+        return clbk?.call(this, err) if err?
+        @load clbk
+
+    files = @files.slice()
+    @js = {}
+
+    do next = =>
+      return clbk.call(this) if not (file = files.pop())
+
+      fs.readFile file, (err, content) =>
+        return clbk?.call(this, err) if err?
+
+        js[file] = content
+        next()
+
+
+  parse: (clbk) ->
+    if not @js?
+      return @load null, (err) =>
+        return clbk?.call(this, err) if err?
         @parse clbk
 
     if @rawMap? and @deps?
@@ -59,34 +74,42 @@ class Files
 
     @rawMap = {}
     @deps = {}
-    files = @files.slice()
 
-    next = (err) =>
-      return clbk?.call(this, err) if err
+    for file, content of @js
 
-      file = files.pop()
+      requires = while tmp = @requires.exec(content) then tmp[1]
+      provides = while tmp = @provides.exec(content) then tmp[1]
 
-      return clbk?.call(this) if not file?
+      if provides.length
+        modules = provides
+      else
+        modules = ['mod'+file.replace(/\//g, '.').replace(/[^\w\.]/g, '')]
 
-      fs.readFile file, (err, content) =>
-        return clbk?.call(this, err) if err
+      for module in modules
+        @rawMap[module] = file
+        @deps[module] = requires if requires?
 
-        requires = while tmp = @requires.exec(content)
-          tmp[1]
-        provides = while tmp = @provides.exec(content)
-          tmp[1]
+    clbk.call(this)
 
-        if provides.length
-          modules = provides
-        else
-          modules = ['mod'+file.replace(/\//g, '.').replace(/[^\w\.]/g, '')]
 
-        for module in modules
-          @rawMap[module] = file
-          @deps[module] = requires if requires?
+  dependsOn: (mod)->
+    @parse => moduleDependsOn(mod) if not @deps? and @rawMap?
 
-        next()
-    next()
+    throw new Error 'No such module: '+mod if not @deps[mod]?
+
+    included = []
+
+    settle = (mod)=>
+      return if mod in included
+
+      throw new Error 'Unmet dependancy: '+mod if not @deps[mod]?
+
+      settle req for req in @deps[mod]
+      included.push(mod)
+
+    settle mod
+
+    return included
 
 
   sort: () ->
@@ -152,7 +175,7 @@ class Files
     return
 
 
-  clean: () ->
+  clean: ->
     if @sorted? and not @output?
       @output = (@rawMap[file].replace(@sourceDir, '') for file in @sorted)
 
@@ -163,19 +186,17 @@ class Files
 
 
   process: (clbk) ->
-    @list null, (err) ->
-      return clbk?.call(this, err) if err?
-      @parse (err) ->
-        if err? then return clbk?.call(this, err)
+    @parse (err) ->
+      if err? then return clbk?.call(this, err)
 
-        sortErr = @sort()
-        if sortErr? then return clbk?.call(this, sortErr)
+      sortErr = @sort()
+      if sortErr? then return clbk?.call(this, sortErr)
 
-        @clean()
-        clbk.call(this)
+      @clean()
+      clbk.call(this)
 
 
-  writeClient: (filename, load, clbk) ->
+  getClient: (load, clbk) ->
     fs.readFile __dirname+'/client.js', (err, contents) =>
       if err? then return clbk?(err)
 
@@ -189,7 +210,12 @@ class Files
           mods = JSON.stringify(@sorted)
           contents = contents + "\ndep.load(#{mods});\n"
 
-        fs.writeFile filename, contents, clbk
+        clbk null, contents
+
+
+  writeClient: (filename, load, clbk) ->
+    @getClient load, (content)->
+      fs.writeFile filename, content, clbk
 
 
 exports.Files = Files
