@@ -12,6 +12,8 @@
     "dependencies": {
         "cli": "0.2.8",
         "request": "latest",
-        "underscore": "latest"
+        "underscore": "latest",
+        "node-tap": "latest",
+        "contextify": "latest"
     }
 }

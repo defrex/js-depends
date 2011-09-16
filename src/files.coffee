@@ -54,18 +54,18 @@ class Files
     @js = {}
 
     do next = =>
-      return clbk.call(this) if not (file = files.pop())
+      return clbk?.call(this) if not (file = files.pop())
 
       fs.readFile file, (err, content) =>
         return clbk?.call(this, err) if err?
 
-        js[file] = content
+        @js[file] = content
         next()
 
 
   parse: (clbk) ->
     if not @js?
-      return @load null, (err) =>
+      return @load (err) =>
         return clbk?.call(this, err) if err?
         @parse clbk
 
@@ -214,7 +214,9 @@ class Files
 
 
   writeClient: (filename, load, clbk) ->
-    @getClient load, (content)->
+    @getClient load, (err, content)->
+      return clbk?(err) if err
+
       fs.writeFile filename, content, clbk
 
 
