@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/defrex/js-depends.png)](http://travis-ci.org/defrex/js-depends)
 
 # Depends
 
