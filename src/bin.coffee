@@ -6,9 +6,9 @@ fs = require 'fs'
 cli = require 'cli'
 path = require 'path'
 
-package = JSON.parse fs.readFileSync path.join __dirname, '/../package.json'
+pkg = JSON.parse fs.readFileSync path.join __dirname, '/../package.json'
 
-cli.setApp package.name, package.version
+cli.setApp pkg.name, pkg.version
 cli.enable 'version'
 
 cli.setUsage 'depends [OPTIONS] [js-directory]'

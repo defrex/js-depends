@@ -166,7 +166,7 @@ class Files
         #look for circular dependancies
         for required, requires of needed
           for mod in requires
-            if required in needed[mod]
+            if mod of needed and required in needed[mod]
               error += "A circular dependancy has been found for:\n#{required}\n#{mod}"
               return error
 
