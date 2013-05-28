@@ -19,6 +19,7 @@
     "coffee-script": "~1.6.2"
   },
   "devDependencies": {
-    "mocha": "~1.10.0"
+    "mocha": "~1.10.0",
+    "uglify-js": "~2.3.6"
   }
 }
