@@ -1,9 +1,15 @@
-
 # Depends
 
 Stop JavaScript dependancy accidents today.
 
 ## Install
+
+To get the most recent version of depends, I recommend installing it from GitHub.
+
+    npm -g install git://github.com/defrex/js-depends.git
+
+
+The latest verion in NPM is 0.3.1, 6924fa80b9292fc48a7d64aa2a752998c42f60ba, which is a little out of date.
 
     npm -g install depends
 
