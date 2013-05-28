@@ -1,44 +1,38 @@
-`#!/usr/bin/env node
-`
 
 depends = require './depends'
 fs = require 'fs'
 cli = require 'cli'
 path = require 'path'
 
-package = JSON.parse fs.readFileSync path.join __dirname, '/../package.json'
+currentPackage = JSON.parse fs.readFileSync path.join __dirname, '/../package.json'
 
-cli.setApp package.name, package.version
+cli.setApp currentPackage.name, currentPackage.version
 cli.enable 'version'
 
 cli.setUsage 'depends [OPTIONS] [js-directory]'
 cli.parse
-  loader: ['l', 'Location of runtime loader file', 'file', false]
-  map: ['m', 'Location of runtime mapping file', 'file', false]
-  script: ['s', 'Wrap output in script tags', 'boolean', false]
+  'absolute': ['a', 'Output absolute paths (useful for piping the output).', 'boolean', false]
+  'include-base': ['i', 'Output paths will include the js directory as passed in.', 'boolean', false]
+  'script': ['s', 'Wrap output in script tags.', 'boolean', false]
 
 cli.main (args, opt) ->
-  src = args[0] || '.'
+  jsDirectory = path.normalize(args[0] || '.')
 
-  fs.realpath src, (err, path) ->
+  depends.manage jsDirectory, (err, files) ->
     if err? then throw err
 
-    if opt.map
-      depends.writeMap path, opt.loader, (err) ->
-        if err? then throw err
-        console.log 'done'
+    if opt['script']
+      for file in files.output
+        console.log "<script src=\"#{file}\"></script>"
 
-    else if opt.loader
-      depends.writeLoader path, opt.loader, (err) ->
-        if err? then throw err
-        console.log 'done'
+    else if opt['absolute']
+      for file in files.output
+        console.log path.resolve(jsDirectory, file)
+
+    else if opt['include-base']
+      for file in files.output
+        console.log path.join(jsDirectory, file)
 
     else
-      depends.manage path, (err, files) ->
-        if err? then throw err
-
-        if opt.script
-          for file in files.output
-            console.log "<script src=\"#{file}\"></script>"
-        else
-          console.log file for file in files.output
+      for file in files.output
+        console.log file
