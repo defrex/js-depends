@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Put a stop to JavaScript dependancy accidents.",
   "author": "defrex",
-  "main": "./src/depends.js",
+  "main": "./src/depends.coffee",
   "bin": {
     "depends": "./src/bin.js"
   },
