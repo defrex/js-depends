@@ -12,10 +12,7 @@
     "url": "git://github.com/defrex/js-depends.git"
   },
   "dependencies": {
-    "cli": "0.2.8",
-    "contextify": "0.0.4",
-    "request": "2.1.1",
-    "underscore": "1.1.7",
+    "cli": "~0.2.8",
     "coffee-script": "~1.6.2"
   },
   "devDependencies": {
