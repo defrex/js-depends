@@ -39,6 +39,20 @@ This will output the list of js files, sorted to resolve all the dependencies. Y
 
 In development I generally shell out to `depends` and wrap the output in `<script>` tags before stuffing it in my base html template. For production the output can be piped into some other post-processor, like uglify. For example,
 
+    depends -i ./jsDirectory | xargs uglifyjs > min.js
+
+## Client-side
+
+`client/depends.js` is a small client side lib. It provides definitions for `dep.require` and `dep.provide` at runtime.
+
+`dep.provide` will ensure that the namespace exists, non-destructively assigning all the values (split by `.`) in the chain to `{}`.
+
+`dep.require` will throw a warning if you're requiring something that isn't loaded. Normally this would never happen.
+
+Alternately, put this noop somewhere before loading your code,
+
+    window.dep = {require: function(){}, provide: function(){}};
+
 ## Node.js lib
 
 depends is also usable as a node.js library.
@@ -57,6 +71,7 @@ depends is also usable as a node.js library.
 Build the client,
 
     ./node_modules/.bin/coffee -cbp src/client.coffee > client/depends.js
+    ./node_modules/.bin/uglifyjs client/depends.js > client/depends.min.js
 
 Run the tests,
 
